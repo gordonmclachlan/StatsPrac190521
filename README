@@ -1,5 +1,6 @@
 README FILE
 I have 2 datasets, MulligansFlatInfiltration & CRFcorestudy.
+But currently only doing MulligansFlatInfiltration
 Steps;
 1. Tidy Data
 2. Visualise Data
