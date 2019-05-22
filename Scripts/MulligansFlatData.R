@@ -4,16 +4,81 @@ library(readxl)
 #Import
 MFdata <- read_excel("../Data/MulligansFlatInfiltration.xlsx", skip=5)
 
+#Tidy data, restructure
 MFdata1 <-  MFdata[-c(2,4)]
 names(MFdata1) <- c("Site_ID", "Element",	"Date", "Bulk_Density_1",	"BD1_percent_moisture", "Bulk_Density_2",	"BD2_percent_moisture", "Average_Bulk_Density", "Infiltration_Rate_potential_minus4cm", "Infiltration_Rate_potential_minus1cm", "Infiltration_Rate_potential_plus1cm")
 str(MFdata1)
 MFdata1 <- mutate_at(MFdata1, vars("Site_ID", "Element"), as.factor)
 str(MFdata1)
-MFdata2 <-  MFdata1[-c(3,4,5,6,7)]
+MFdata2 <-  MFdata1[-c(3,4,5,6,7)] #average BD & infiltration
+MFdata2a <- gather(MFdata2, key=Infiltration, value = ml_per_minute, c(4,5,6))
 MFdata3 <-  MFdata1[-c(3,8)]
 MFdata4 <- gather(MFdata3, key=Bulk_Density, value = grams_per_cubic_cm, c(3,5))
-MFdata5 <- gather(MFdata4, key=BD_moisture, value = moisture_percent, c(3,4))
-MFdata6 <- gather(MFdata5, key=Infiltraton, value = ml_per_minute, c(7,8,9))
+MFdata5 <- gather(MFdata4, key=BD_moisture, value = moisture_percent, c(3,4)) #BD, BDmoisture, & infiltration
+MFdata6 <- gather(MFdata5, key=Infiltration, value = ml_per_minute, c(3,4,5)) #tidy but not useful for infiltration
+
+#visualise
+ggplot(MFdata2, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_boxplot() 
+ggplot(MFdata2, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_point()
+ggplot(MFdata2a, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free")
+#ggplot(MFdata2a, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata2, aes(x=Element, Average_Bulk_Density, colour=Site_ID)) + geom_boxplot()
+ggplot(MFdata2, aes(x=Element, Average_Bulk_Density, colour=Site_ID)) + geom_point()
+
+
+ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free")
+#ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Element)) + geom_point() + facet_wrap(~Site_ID, scales="free")
+ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful
+ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_point() #useful
+ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful
+ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Infiltration)) + geom_point() #useful
+
+
+
+ggplot(MFdata6, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata6, aes(x=Site_ID, grams_per_cubic_cm, colour=Element)) + geom_boxplot() #very useful
+ggplot(MFdata6, aes(x=Element, grams_per_cubic_cm, colour=Site_ID)) + geom_boxplot() #very useful
+ggplot(MFdata6, aes(x=Site_ID, moisture_percent, colour=Element)) + geom_boxplot() #useful??
+ggplot(MFdata6, aes(x=Element, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful??
+ggplot(MFdata6, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_boxplot() #not useful
+ggplot(MFdata6, aes(x=Element, ml_per_minute, colour=Site_ID)) + geom_boxplot() #not useful
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_boxplot()
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_point() 
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_boxplot() 
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_point() 
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Element)) + geom_boxplot() #useful
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Element)) + geom_point() 
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Site_ID)) + geom_point() 
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() #useful
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_point()
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Site_ID, scales="free") #useful?
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() #useful
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_point()
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Element, scales="free") #useful
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Element, scales="free") #useful
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Infiltration)) + geom_boxplot()  #useful
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Infiltration)) + geom_point() 
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_point() 
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot()+ facet_wrap(~Element, scales="free") #useful
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot()+ facet_wrap(~Site_ID, scales="free") #useful
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
+ggplot(MFdata6, aes(x=Infiltration, log(ml_per_minute), colour=Element)) + geom_boxplot() 
+ggplot(MFdata6, aes(x=Infiltration, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() 
+#ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
+
+#below to big and useless
+#ggplot(MFdata6, aes(x=grams_per_cubic_cm, y=ml_per_minute, colour=Infiltration)) + 
+# geom_point() + 
+# geom_smooth(alpha=.2) +
+# facet_wrap(~Site_ID*Element)
 
 
 #install.packages("emmeans")
@@ -21,21 +86,10 @@ MFdata6 <- gather(MFdata5, key=Infiltraton, value = ml_per_minute, c(7,8,9))
 #install.packages("lmerTest")
 #library(lmerTest)
 
-#Import
-#SeijaN <- read_csv("Data/Comparison_Experiment_KCL_v_K2SO4.csv")
-#str(SeijaN)
-
 #restructure
 #SeijaN2 <- gather(SeijaN, key=N_type, value = amount, c(7,9,11))
 #SeijaN2$RepID <- with(SeijaN2, interaction(Treatment,Extractant,Soil))
 #SeijaN2$RepID <- str_replace_all(SeijaN2$RepID, ' ', '_')
-
-
-
-#visualise
-#ggplot(SeijaN, aes(x=Soil, log(NH3N_adjusted), colour=Extractant)) + geom_boxplot() + facet_wrap(~Treatment, scales="free")
-#ggplot(SeijaN, aes(x=Treatment, log(NH3N_adjusted), colour=Extractant)) + geom_boxplot() + facet_wrap(~Soil, scales="free")
-#ggplot(SeijaN, aes(x=Treatment, log(NH3N_adjusted), colour=Extractant)) + geom_point() + facet_wrap(~Soil, scales="free")
 
 
 #visualise by tables
