@@ -10,6 +10,11 @@ MulligansFlatInfiltration
 Water infiltration measurements taken at Mulligans flat woodland reserve.
 Factors;Sites(9),Elements(6),Inifiltration Suctions(3)
 Response; Infiltration ml_per_minute, (also have soil bulk density & soil moisture measurements)
+After visualisation reconsidered statistical analysis
+Block; Infiltration Suction(3)
+Factors; Sites(9), Elements(6), Bulk Density, Soil Moisture
+Response; Infiltration ml_per_minute
+
 Steps;
 1. Tidy Data, Done
 2. Visualise Data, Done (but not happy with)
