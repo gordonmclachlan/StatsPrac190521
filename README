@@ -1,10 +1,26 @@
 README FILE
 I have 2 datasets, MulligansFlatInfiltration & CRFcorestudy.
-But currently only doing MulligansFlatInfiltration
+Work will be stored on laptop & github, in the directory structure below;
+StatsPrac190521
+  -Data (data will remain on laptop, not on github)
+  -Scripts (laptop & github)
+  -Results (laptop & github)
+
+MulligansFlatInfiltration
+Water infiltration measurements taken at Mulligans flat woodland reserve.
+Factors;Sites(9),Elements(6),Inifiltration Suctions(3)
+Response; Infiltration ml_per_minute, (also have soil bulk density & soil moisture measurements)
 Steps;
-1. Tidy Data
-2. Visualise Data
+1. Tidy Data, Done
+2. Visualise Data, Done (but not happy with)
 3. Statisical Model
 4. Markdown Document
 
-
+CRFcorestudy
+Control release fertilise study from Queensland soil cores in the laboratory.
+Factors; CRF Product(2), Soil(2), Days(4), Reps(3), Suction(4)
+Steps;
+1. Tidy Data, Done
+2. Visualise Data
+3. Statisical Model
+4. Markdown Document
