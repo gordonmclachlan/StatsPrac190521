@@ -17,8 +17,8 @@ Response; Infiltration ml_per_minute
 
 Steps;
 1. Tidy Data, Done
-2. Visualise Data, Done (but not happy with)
-3. Statisical Model
+2. Visualise Data, Done 
+3. Statisical Model, In progess Needed to log ml_per_minute to improve residual graph
 4. Markdown Document
 
 CRFcorestudy
@@ -26,6 +26,6 @@ Control release fertilise study from Queensland soil cores in the laboratory.
 Factors; CRF Product(2), Soil(2), Days(4), Reps(3), Suction(4)
 Steps;
 1. Tidy Data, Done
-2. Visualise Data
+2. Visualise Data, In progress
 3. Statisical Model
 4. Markdown Document
