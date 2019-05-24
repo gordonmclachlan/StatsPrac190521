@@ -1,0 +1,184 @@
+---
+title: "Statisitcs Practical 21-24/5/2019"
+author: "Gordon McLachlan"
+date: "24 May 2019"
+output: html_document
+---
+
+#Getting Lost In Statistics
+##Some journeys are longer than others.
+
+##Workflow Steps;
+###1. Create Git Repository
+###2. Import & Tidy Data
+###3. Visualise Data, ggplot
+###4. Statisical Model
+###5. Markdown Document
+
+##Work will be stored on laptop & github, in the directory structure below;
+###StatsPrac190521
+###  -Data (data will remain on laptop, not on github)
+###  -Scripts (laptop & github)
+###  -Results (laptop & github)
+
+##MulligansFlatInfiltration
+###Water infiltration measurements taken at Mulligans flat woodland reserve.
+###Factors;Sites(9),Elements(6),Inifiltration Suctions(3)
+###Response; Infiltration ml_per_minute, (also have soil bulk density & soil moisture measurements)
+###After visualisation reconsidered statistical analysis
+###Block; Infiltration Suction(3)
+###Factors; Sites(9), Elements(6), Bulk Density, Soil Moisture
+###Response; Infiltration ml_per_minute
+
+![optional caption text](C:\Users\mcl226\DATASCHOOL\Statistics\StatsPrac190521\Data\MF38-1A_DPa.JPG)
+
+```{r}
+
+library(tidyverse)
+library(readxl)
+
+#Import
+MFdata <- read_excel("../Data/MulligansFlatInfiltration.xlsx", skip=5)
+
+#Tidy data, restructure, delete or combine columns, change coulmn structure to factors,
+MFdata1 <-  MFdata[-c(2,4)]
+names(MFdata1) <- c("Site_ID", "Element",	"Date", "Bulk_Density_1",	"BD1_percent_moisture", "Bulk_Density_2",	"BD2_percent_moisture", "Average_Bulk_Density", "Infiltration_Rate_potential_minus4cm", "Infiltration_Rate_potential_minus1cm", "Infiltration_Rate_potential_plus1cm")
+#str(MFdata1)
+MFdata1 <- mutate_at(MFdata1, vars("Site_ID", "Element"), as.factor)
+#str(MFdata1)
+MFdata1$Average_moisture_percent <- ((MFdata1$BD1_percent_moisture + MFdata1$BD2_percent_moisture)/2)
+MFdata2 <-  MFdata1[-c(3,4,5,6,7)] #average BD & infiltration
+MFdata2a <- gather(MFdata2, key=Infiltration, value = ml_per_minute, c(4,5,6))
+MFdata2a$Infiltration <- factor(MFdata2a$Infiltration, levels = c("Infiltration_Rate_potential_plus1cm", "Infiltration_Rate_potential_minus1cm","Infiltration_Rate_potential_minus4cm"))
+MFdata2a$ml_per_minute <- replace(MFdata2a$ml_per_minute, MFdata2a$ml_per_minute == 0.00 , 0.000001) #Need to remove zero before log
+MFdata2a$log_ml_per_minute <- log(MFdata2a$ml_per_minute)#log infiltration ml_per_minute
+str(MFdata2a)
+MFdata3 <-  MFdata1[-c(3,8)]
+MFdata4 <- gather(MFdata3, key=Bulk_Density, value = grams_per_cubic_cm, c(3,5))
+MFdata5 <- gather(MFdata4, key=BD_moisture, value = moisture_percent, c(3,4)) #BD, BDmoisture, & infiltration
+MFdata6 <- gather(MFdata5, key=Infiltration, value = ml_per_minute, c(3,4,5)) #tidy but not useful for infiltration
+#str(MFdata6)
+MFdata6$Infiltration <- factor(MFdata6$Infiltration, levels = c("Infiltration_Rate_potential_plus1cm", "Infiltration_Rate_potential_minus1cm","Infiltration_Rate_potential_minus4cm"))
+MFdata6$ml_per_minute <- replace(MFdata6$ml_per_minute, MFdata6$ml_per_minute == 0.00 , 0.000001) #Need to remove zero before log
+MFdata6$log_ml_per_minute <- log(MFdata6$ml_per_minute)#log infiltration ml_per_minute
+str(MFdata6)
+
+```
+##What to plot, this is where the journey was long & windy.
+
+###The need for infiltration suction as a block, scaterplot shows no obvious trend.
+```{r, echo=FALSE}
+ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph2
+ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph4
+ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful, Graph3
+ggplot(MFdata6, aes(x=Element, grams_per_cubic_cm, colour=Site_ID)) + geom_boxplot() +facet_wrap(~Infiltration, scales="free") #very useful Graph5
+ggplot(MFdata6, aes(x=Element, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful??, Graph6
+```
+###Could be a variation between sites, Bulk Density & Moisture percentage
+
+### Also logged infiltration rate (ml/min), after looking at residual plot from statistics
+```{r, echo=FALSE}
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, log(ml_per_minute), colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful, Graph18
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") # maybe useful, Graph19
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?, Graph20
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?, Graph21
+```
+
+###Tried some geom_smooth, but no straight lines, random
+
+```{r, echo=FALSE}
+#ggplot geom_smooth
+
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_point()+ geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?? Graph26
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Element)) + geom_point()+ geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?? Graph27
+
+```
+
+###Hypothesis for statistcs; Infiltration Suction trested as a block.
+
+### Infiltration Rate (ml/min) affected by Bulk Density & moisture %
+
+### Which should be seen in Site_ID, & possibly Element.
+
+### Needed to Log(ml/min)
+
+```{r}
+#model data
+
+
+library(lmerTest)
+
+MFlm1 <- lmer(ml_per_minute~Element + (1|Infiltration), data = MFdata2a)
+anova(MFlm1)
+summary(MFlm1)
+plot(MFlm1)
+# no significant diferrence between elements for ml_per_minute
+
+MFlm2 <- lmer(ml_per_minute~Site_ID + (1|Infiltration), data = MFdata2a)
+anova(MFlm2)
+summary(MFlm2)
+plot(MFlm2)
+# significant difference between sites, 
+#especially at the following Site_ID; MF25A-3A, MF27A-1A, MF37-1A, MF38-1A.
+#residual plot shows need for log transformation
+
+MFlm10 <- lmer(log_ml_per_minute~Site_ID + (1|Infiltration), data = MFdata2a)
+anova(MFlm10)
+summary(MFlm10)
+plot(MFlm10)
+# significant difference between sites, 
+#especially at the following Site_ID; MF19A-2B, MF22AZ-4A, MF25A-3A, MF27A-1A, MF34-4B, MF37-1A,MF38-1A. MF25A-3A, MF27A-1A, MF37-1A, MF38-1A.
+#log_ml_per_minute_ improved residual 
+
+MFlm11 <- lmer(log_ml_per_minute~Average_Bulk_Density + (1|Infiltration), data = MFdata2a)
+anova(MFlm11)
+summary(MFlm11)
+plot(MFlm11)
+# no significant difference between Bulk Density, & Infiltration
+# log_ml_per_minute_ improved residual 
+
+MFlm12 <- lmer(log_ml_per_minute~Average_moisture_percent + (1|Infiltration), data = MFdata2a)
+anova(MFlm12)
+summary(MFlm12)
+plot(MFlm12)
+# no significant difference between Average_moisture_percent
+# log_ml_per_minute_ improved residual 
+
+MFlm13 <- lmer(log_ml_per_minute~moisture_percent*grams_per_cubic_cm + (1|Infiltration), data = MFdata6)
+anova(MFlm13)
+summary(MFlm13)
+plot(MFlm13)
+# significant difference between moisture_percent, grams_per_cubic_cm, &  moisture_percent*grams_per_cubic_cm
+
+MFlm14 <- lmer(log_ml_per_minute~Average_moisture_percent*Average_Bulk_Density + (1|Infiltration), data = MFdata2a)
+anova(MFlm14)
+summary(MFlm14)
+plot(MFlm14)
+# no significant difference between moisture_percent, grams_per_cubic_cm, &  moisture_percent*grams_per_cubic_cm
+
+MFlm15 <- lmer(log_ml_per_minute~Site_ID*Element + (1|Infiltration), data = MFdata6)
+anova(MFlm15)
+summary(MFlm15)
+plot(MFlm15)
+#fixed-effect model matrix is rank deficient so dropping 18 columns / coefficients
+# significant difference between Site_ID, Element, Site_ID*Element
+# especially Site_IDMF19A-2B,Site_IDMF22AZ-4A,Site_IDMF32/1A,Site_IDMF34-4B,Site_IDMF37-1A, Site_IDMF38-1A, Site_IDMF34-4B:ElementClump Top, Site_IDMF27A-1A:ElementOld Log, Site_IDMF34-4B:ElementOld Log, Site_IDMF34-4B:ElementOpen, Site_IDMF34-4B:ElementTree     
+
+MFlm16 <- lmer(log_ml_per_minute~Site_ID*Element + (1|Infiltration), data = MFdata2a)
+anova(MFlm16)
+summary(MFlm16)
+plot(MFlm16)
+# fixed-effect model matrix is rank deficient so dropping 18 columns / coefficients
+# significant difference between Site_ID,
+# especially Site_IDMF34-4B, Site_IDMF34-4B:ElementOpen
+
+
+```
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

@@ -12,8 +12,6 @@ MFdata1 <- mutate_at(MFdata1, vars("Site_ID", "Element"), as.factor)
 str(MFdata1)
 MFdata1$Average_moisture_percent <- ((MFdata1$BD1_percent_moisture + MFdata1$BD2_percent_moisture)/2)
 MFdata2 <-  MFdata1[-c(3,4,5,6,7)] #average BD & infiltration
-MFdata2$ml_per_minute <- replace(MFdata2$ml_per_minute, MFdata2a$ml_per_minute == 0.00 , 0.000001) #Need to remove zero before log
-MFdata2$log_ml_per_minute <- log(MFdata2$ml_per_minute)#log infiltration ml_per_minute
 MFdata2a <- gather(MFdata2, key=Infiltration, value = ml_per_minute, c(4,5,6))
 MFdata2a$Infiltration <- factor(MFdata2a$Infiltration, levels = c("Infiltration_Rate_potential_plus1cm", "Infiltration_Rate_potential_minus1cm","Infiltration_Rate_potential_minus4cm"))
 MFdata2a$ml_per_minute <- replace(MFdata2a$ml_per_minute, MFdata2a$ml_per_minute == 0.00 , 0.000001) #Need to remove zero before log
@@ -31,11 +29,44 @@ str(MFdata6)
 
 #visualise
 
+ggplot(MFdata2, aes(x=Element, Average_Bulk_Density, colour=Site_ID)) + geom_point() #useful, Graph1
+
+ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph2
+ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful, Graph3
+ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph4
+
+ggplot(MFdata6, aes(x=Element, grams_per_cubic_cm, colour=Site_ID)) + geom_boxplot() +facet_wrap(~Infiltration, scales="free") #very useful Graph5
+ggplot(MFdata6, aes(x=Element, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful??, Graph6
+ggplot(MFdata6, aes(x=Element, ml_per_minute, colour=Site_ID)) + geom_boxplot() +facet_wrap(~Infiltration, scales="free") #useful? Graph7
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_boxplot()+facet_wrap(~Infiltration, scales="free") #useful, Graph8
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_boxplot()+facet_wrap(~Infiltration, scales="free") #maybe useful, Graph9
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful, Graph 11
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful,Graph 12
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful, Graph 13
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Infiltration)) + geom_boxplot()  #useful, Graph14, why infiltration is a block?
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph15, why infiltration is a block?
+ggplot(MFdata6, aes(x=Infiltration, log(ml_per_minute), colour=Element)) + geom_boxplot() # very useful  Graph16
+ggplot(MFdata6, aes(x=Infiltration, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() # very useful  Graph17
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, log(ml_per_minute), colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful, Graph18
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") # maybe useful, Graph19
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?, Graph20
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?, Graph21
+
+#ggplot geom_smooth
+ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful? Graph22
+ggplot(MFdata2a, aes(x=Average_moisture_percent, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful? Graph23
+
+ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() +facet_wrap(~Infiltration, scales="free") #useful? Graph24
+ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful? Graph25
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_point()+ geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?? Graph26
+ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Element)) + geom_point()+ geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?? Graph27
+
+
+#unused graphs
 #ggplot(MFdata2, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_boxplot() #not so useful
 #ggplot(MFdata2, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_point() # useful
 #ggplot(MFdata2a, aes(x=Site_ID, Average_Bulk_Density, colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free") #not useful
 #ggplot(MFdata2, aes(x=Element, Average_Bulk_Density, colour=Site_ID)) + geom_boxplot() #not useful
-ggplot(MFdata2, aes(x=Element, Average_Bulk_Density, colour=Site_ID)) + geom_point() #useful, Graph1
 
 #ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful
 #ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free")
@@ -43,70 +74,44 @@ ggplot(MFdata2, aes(x=Element, Average_Bulk_Density, colour=Site_ID)) + geom_poi
 #ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful?
 #ggplot(MFdata2a, aes(x=Average_Bulk_Density, log(ml_per_minute), colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful, Graph?
 #ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful?
-ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph2
-ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful, Graph4
 #ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_point() #useful
-ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph3
 #ggplot(MFdata2a, aes(x=Site_ID, ml_per_minute, colour=Infiltration)) + geom_point() #useful
 #ggplot(MFdata2a, aes(x=Average_moisture_percent, log(ml_per_minute), colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free") # not useful, errors
 
 #ggplot(MFdata6, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #maybe not useful
 #ggplot(MFdata6, aes(x=Site_ID, grams_per_cubic_cm, colour=Element)) + geom_boxplot() #very useful
-ggplot(MFdata6, aes(x=Element, grams_per_cubic_cm, colour=Site_ID)) + geom_boxplot() +facet_wrap(~Infiltration, scales="free") #very useful Graph5
 #ggplot(MFdata6, aes(x=Site_ID, moisture_percent, colour=Element)) + geom_boxplot() #useful??
-ggplot(MFdata6, aes(x=Element, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful??, Graph6
 #ggplot(MFdata6, aes(x=Site_ID, ml_per_minute, colour=Element)) + geom_boxplot() #not useful
-ggplot(MFdata6, aes(x=Element, ml_per_minute, colour=Site_ID)) + geom_boxplot() +facet_wrap(~Infiltration, scales="free") #useful? Graph7
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_boxplot()+facet_wrap(~Infiltration, scales="free") #useful, Graph8
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_point() #useful
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_boxplot()+facet_wrap(~Infiltration, scales="free") #maybe useful, Graph9
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_point() #maybe useful
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Element)) + geom_boxplot() #useful, Graph 10
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Element)) + geom_point() #useful?
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Site_ID)) + geom_boxplot() #useful, Graph 11
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, moisture_percent, colour=Site_ID)) + geom_point() #useful?
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() #useful
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_point() #maybe useful
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Site_ID, scales="free") #useful?
-ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful,Graph 12
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() #useful
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_point() #Useful?
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Element, scales="free") #useful
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_point() + facet_wrap(~Element, scales="free") #useful
-ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful, Graph 13
-ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Infiltration)) + geom_boxplot()  #useful, Graph14, why infiltration is a block?
 #ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Infiltration)) + geom_point() # maybe useful
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot() #useful, Graph15, why infiltration is a block?
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_point() # maybe useful
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot()+ facet_wrap(~Element, scales="free") #useful
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Infiltration)) + geom_boxplot()+ facet_wrap(~Site_ID, scales="free") #useful
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful? same as graph9
 #ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful? same as graph8
-ggplot(MFdata6, aes(x=Infiltration, log(ml_per_minute), colour=Element)) + geom_boxplot() # very useful  Graph16
-ggplot(MFdata6, aes(x=Infiltration, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() # very useful  Graph17
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, log(ml_per_minute), colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful, Graph18
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") # maybe useful, Graph19
-ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Element)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?, Graph20
-ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_boxplot() + facet_wrap(~Infiltration, scales="free") #useful?, Graph21
 #ggplot(MFdata6, aes(x=Site_ID, log(ml_per_minute), colour=Element)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful?,
 #ggplot(MFdata6, aes(x=Element, log(ml_per_minute), colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful?,
+#ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful?
 
 
-#ggplot geom_smooth
-ggplot(MFdata2a, aes(x=Average_Bulk_Density, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful? Graph22
+#unused ggplot geom_smooth
 #ggplot(MFdata2a, aes(x=Average_Bulk_Density, log(ml_per_minute), colour=Element)) + geom_point() + geom_smooth + facet_wrap(~Infiltration, scales="free") # not useful, errors
 #ggplot(MFdata2a, aes(x=Average_Bulk_Density, log(ml_per_minute), colour=Site_ID)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?
-ggplot(MFdata2a, aes(x=Average_moisture_percent, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful? Graph23
 #ggplot(MFdata2a, aes(x=Average_moisture_percent, log(ml_per_minute), colour=Element)) + geom_point() + geom_smooth + facet_wrap(~Infiltration, scales="free") # not useful, errors
 #ggplot(MFdata2a, aes(x=Average_moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?
 #ggplot(MFdata2a, aes(x=Element, ml_per_minute, colour=Infiltration)) + geom_point() + geom_smooth() # not useful, errors
 #ggplot(MFdata2a, aes(x=Average_moisture_percent, log(ml_per_minute), colour=Infiltration)) + geom_point() + geom_smooth  # not useful, errors
-
-ggplot(MFdata6, aes(x=moisture_percent, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() +facet_wrap(~Infiltration, scales="free") #useful? Graph24
-ggplot(MFdata6, aes(x=grams_per_cubic_cm, ml_per_minute, colour=Element)) + geom_point() + geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful? Graph25
-ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_point()+ geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?? Graph26
-ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Element)) + geom_point()+ geom_smooth() + facet_wrap(~Infiltration, scales="free") #useful?? Graph27
-#ggplot(MFdata6, aes(x=moisture_percent, log(ml_per_minute), colour=Site_ID)) + geom_point() + facet_wrap(~Infiltration, scales="free") #useful?
 
 
 install.packages("emmeans")
@@ -128,7 +133,7 @@ summary(MFlm2)
 plot(MFlm2)
 # significant difference between sites, 
 #especially at the following Site_ID; MF25A-3A, MF27A-1A, MF37-1A, MF38-1A.
-#residual plot shows need for og transformation
+#residual plot shows need for log transformation
 
 MFlm3 <- lmer(ml_per_minute~Average_Bulk_Density + (1|Infiltration), data = MFdata2a)
 anova(MFlm3)
@@ -204,9 +209,33 @@ plot(MFlm12)
 # no significant difference between Average_moisture_percent
 # log_ml_per_minute_ improved residual 
 
+MFlm13 <- lmer(log_ml_per_minute~moisture_percent*grams_per_cubic_cm + (1|Infiltration), data = MFdata6)
+anova(MFlm13)
+summary(MFlm13)
+plot(MFlm13)
+# significant difference between moisture_percent, grams_per_cubic_cm, &  moisture_percent*grams_per_cubic_cm
 
+MFlm14 <- lmer(log_ml_per_minute~Average_moisture_percent*Average_Bulk_Density + (1|Infiltration), data = MFdata2a)
+anova(MFlm14)
+summary(MFlm14)
+plot(MFlm14)
+# no significant difference between moisture_percent, grams_per_cubic_cm, &  moisture_percent*grams_per_cubic_cm
 
+MFlm15 <- lmer(log_ml_per_minute~Site_ID*Element + (1|Infiltration), data = MFdata6)
+anova(MFlm15)
+summary(MFlm15)
+plot(MFlm15)
+#fixed-effect model matrix is rank deficient so dropping 18 columns / coefficients
+# significant difference between Site_ID, Element, Site_ID*Element
+# especially Site_IDMF19A-2B,Site_IDMF22AZ-4A,Site_IDMF32/1A,Site_IDMF34-4B,Site_IDMF37-1A, Site_IDMF38-1A, Site_IDMF34-4B:ElementClump Top, Site_IDMF27A-1A:ElementOld Log, Site_IDMF34-4B:ElementOld Log, Site_IDMF34-4B:ElementOpen, Site_IDMF34-4B:ElementTree     
 
+MFlm16 <- lmer(log_ml_per_minute~Site_ID*Element + (1|Infiltration), data = MFdata2a)
+anova(MFlm16)
+summary(MFlm16)
+plot(MFlm16)
+# fixed-effect model matrix is rank deficient so dropping 18 columns / coefficients
+# significant difference between Site_ID,
+# especially Site_IDMF34-4B, Site_IDMF34-4B:ElementOpen
 
 
 #emmeans(MFlm1, pairwise~ml_|Element, type="response") 
@@ -214,19 +243,3 @@ plot(MFlm12)
 # don't think I have this right above.
 
 
-
-
-#lm3 <- lmer(Height~MAP_kg_ha+Nitrogen_kg_ha+Treatment+factor(Week)+
- #             Treatment*factor(Week)+ Nitrogen_kg_ha* factor(Week)+
-  #            MAP_kg_ha*factor(Week) + (1|Transect) + (1|Plot), data = MFdata2a)
-
-#lm4 <- lmer(Height~factor(Week) * (Nitrogen_kg_ha + Treatment + MAP_kg_ha) +
- #             (1|Transect) +(1|Plot), data=TM2)
-
-#summary(lm3)
-#anova(lm4)
-#summary(lm4)
-#plot(lm3)
-#plot(lm4)
-#emmeans(lm4, pairwise~Treatment|factor(Week), type="response") 
-#emmeans(lm4, revpairwise~Treatment|factor(Week), type="response")
